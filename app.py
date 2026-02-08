@@ -1,9 +1,8 @@
 from flask import Flask
 from flask_smorest import Api
-
+from flask_jwt_extended import JWTManager
+from os import environ
 from db import db
-
-import models
 
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
@@ -25,7 +24,11 @@ def create_app(db_url=None):
     db.init_app(app)
     api = Api(app)
 
+    app.config["JWT_SECRET_KEY"] = environ["JWT_SECRET_KEY"]
+    jwt = JWTManager(app)
+
     with app.app_context():
+        import models  # noqa: F401
         db.create_all()
 
     api.register_blueprint(ItemBlueprint)
