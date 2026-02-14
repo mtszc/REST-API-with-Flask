@@ -8,6 +8,7 @@ from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
 from resources.tag import blp as TagBlueprint
 from resources.user import blp as UserBlueprint
+from flask_migrate import Migrate
 
 def create_app(db_url=None):
     app = Flask(__name__)
@@ -23,6 +24,7 @@ def create_app(db_url=None):
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["PROPAGATE_EXCEPTIONS"] = True
     db.init_app(app)
+    migrate = Migrate(app, db)
     api = Api(app)
 
     app.config["JWT_SECRET_KEY"] = environ["JWT_SECRET_KEY"]
@@ -80,10 +82,6 @@ def create_app(db_url=None):
             ),
             401,
         )
-
-    with app.app_context():
-        import models  # noqa: F401
-        db.create_all()
 
     api.register_blueprint(ItemBlueprint)
     api.register_blueprint(StoreBlueprint)
